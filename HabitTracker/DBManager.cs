@@ -74,7 +74,7 @@ internal class DBManager
                     {
                         habitsList.Add(new Habit
                         {
-                            ID = (Int64)reader["Id"],
+                            ID = (long)reader["Id"],
                             Name = (string)reader["Name"],
                             Unit = (string)reader["Unit"],
                             CreatedAt = (string)reader["CreatedAt"]
