@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Microsoft.Data.Sqlite;
 namespace CodeReviews_Console_HabitTracker
 {
     class Program
     {
+
+        public static DBManager db = new();
         static void Main(string[] args)
         {
-            DBManager db = new();
             db.InitializeDB();
 
-            string? userInput = null;
+            string? userInput;
             bool appRunning = true;
 
             while (appRunning)
@@ -25,11 +27,11 @@ namespace CodeReviews_Console_HabitTracker
                         break;
 
                     case "1":
-                        Console.WriteLine("View All Habits selected.");
+                        DisplayHabitsTable();
                         break;
 
                     case "2":
-                        Console.WriteLine("Create New Habit selected.");
+                        AddNewHabit();
                         break;
 
                     case "3":
@@ -41,7 +43,7 @@ namespace CodeReviews_Console_HabitTracker
                         break;
 
                     case "5":
-                        Console.WriteLine("View All Habit Entries selected.");
+                        DisplayHabitEntriesTable();
                         break;
 
                     case "6":
@@ -89,6 +91,103 @@ namespace CodeReviews_Console_HabitTracker
             Console.WriteLine("Type 9 to Delete Habit Entry.");
 
             Console.WriteLine("------------------------------------------\n");
+        }
+        static void DisplayHabitsTable()
+        {
+            var habitList = db.GetHabits();
+
+            if (habitList.Count == 0)
+            {
+                Console.WriteLine("\nNo habits found.");
+                return;
+            }
+
+            Console.WriteLine("\nHABITS");
+            Console.WriteLine("------------------------------------------------------------");
+
+            Console.WriteLine(
+                "ID".PadRight(5) +
+                "Name".PadRight(25) +
+                "Unit".PadRight(15) +
+                "Created At".PadRight(12)
+            );
+
+            Console.WriteLine("------------------------------------------------------------");
+
+            foreach (var habit in habitList)
+            {
+                Console.WriteLine(
+                    habit.ID.ToString().PadRight(5) +
+                    habit.Name.PadRight(25) +
+                    habit.Unit.PadRight(15) +
+                    habit.CreatedAt.PadRight(12)
+                );
+            }
+
+            Console.WriteLine("------------------------------------------------------------");
+
+        }
+        static void DisplayHabitEntriesTable()
+        {
+            var habitEntriesList = db.GetHabitEntries();
+
+            if (habitEntriesList.Count == 0)
+            {
+                Console.WriteLine("\nNo habits found.");
+                return;
+            }
+
+            Console.WriteLine("\nHABIT ENTRIES");
+            Console.WriteLine("--------------------------------------------------------------------------------");
+
+            Console.WriteLine(
+                "ID".PadRight(5) +
+                "Habit ID".PadRight(10) +
+                "Date".PadRight(15) +
+                "Quantity".PadRight(12) +
+                "Notes".PadRight(30)
+            );
+
+            Console.WriteLine("--------------------------------------------------------------------------------");
+
+            foreach (var entry in habitEntriesList)
+            {
+                Console.WriteLine(
+                    entry.ID.ToString().PadRight(5) +
+                    entry.HabitID.ToString().PadRight(10) +
+                    entry.Date.ToString("yyyy-MM-dd").PadRight(15) +
+                    entry.Quantity.ToString().PadRight(12) +
+                    (entry.Notes ?? "").PadRight(30)
+                );
+            }
+
+            Console.WriteLine("--------------------------------------------------------------------------------");
+
+        }
+        static void AddNewHabit()
+        {
+            string? name;
+            string? unit;
+
+            System.Console.WriteLine("Which habit do you want to start?");
+            name = Console.ReadLine();
+
+            while (string.IsNullOrWhiteSpace(name) || name.Length < 2)
+            {
+                System.Console.WriteLine("Please type at least 2 charachers");
+                name = Console.ReadLine();
+            }
+
+            System.Console.WriteLine("In which unit will you be tracking?");
+            unit = Console.ReadLine();
+
+            while (unit == null)
+            {
+                System.Console.WriteLine("Unit cannot be null");
+                unit = Console.ReadLine();
+            }
+
+            db.InsertHabit(name, unit);
         }
     }
 }
