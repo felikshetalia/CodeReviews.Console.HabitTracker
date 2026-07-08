@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite;
 namespace CodeReviews_Console_HabitTracker
@@ -10,7 +8,16 @@ namespace CodeReviews_Console_HabitTracker
         public static DBManager db = new();
         static void Main(string[] args)
         {
-            db.InitializeDB();
+            try
+            {
+                db.InitializeDB();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Could not initialize database: {e.Message} @ {e.StackTrace}");
+                Console.WriteLine("Application cannot continue.");
+                return;
+            }
 
             string? userInput;
             bool appRunning = true;
@@ -29,8 +36,6 @@ namespace CodeReviews_Console_HabitTracker
 
                     case "1":
                         DisplayHabitsTable();
-                        System.Console.WriteLine("Press any key to close...");
-                        Console.ReadLine();
                         break;
 
                     case "2":
@@ -47,14 +52,10 @@ namespace CodeReviews_Console_HabitTracker
 
                     case "5":
                         DisplayHabitEntriesTable();
-                        System.Console.WriteLine("Press any key to close...");
-                        Console.ReadLine();
                         break;
 
                     case "6":
                         DisplayHabitEntriesByHabit();
-                        System.Console.WriteLine("Press any key to close...");
-                        Console.ReadLine();
                         break;
 
                     case "7":
@@ -99,14 +100,16 @@ namespace CodeReviews_Console_HabitTracker
 
             Console.WriteLine("------------------------------------------\n");
         }
-        static void DisplayHabitsTable()
+        static bool DisplayHabitsTable()
         {
             var habitList = db.GetHabits();
 
             if (habitList.Count == 0)
             {
                 Console.WriteLine("\nNo habits found.");
-                return;
+                System.Console.WriteLine("Press any key to close...");
+                Console.ReadLine();
+                return false;
             }
 
             Console.WriteLine("\nHABITS");
@@ -132,16 +135,21 @@ namespace CodeReviews_Console_HabitTracker
             }
 
             Console.WriteLine("------------------------------------------------------------");
+            System.Console.WriteLine("Press any key to close...");
+            Console.ReadLine();
+            return true;
 
         }
-        static void DisplayHabitEntriesTable(long? _habitId = null)
+        static bool DisplayHabitEntriesTable(long? _habitId = null)
         {
             var habitEntriesList = db.GetHabitEntries(_habitId);
 
             if (habitEntriesList.Count == 0)
             {
                 Console.WriteLine("\nNo habits found.");
-                return;
+                System.Console.WriteLine("Press any key to close...");
+                Console.ReadLine();
+                return false;
             }
 
             Console.WriteLine("\nHABIT ENTRIES");
@@ -169,6 +177,9 @@ namespace CodeReviews_Console_HabitTracker
             }
 
             Console.WriteLine("--------------------------------------------------------------------------------");
+            System.Console.WriteLine("Press any key to close...");
+            Console.ReadLine();
+            return true;
         }
         static void AddNewHabit()
         {
@@ -187,7 +198,7 @@ namespace CodeReviews_Console_HabitTracker
             System.Console.WriteLine("In which unit will you be tracking?");
             unit = Console.ReadLine();
 
-            while (unit == null)
+            while (string.IsNullOrWhiteSpace(unit))
             {
                 System.Console.WriteLine("Unit cannot be null");
                 unit = Console.ReadLine();
@@ -197,6 +208,10 @@ namespace CodeReviews_Console_HabitTracker
             {
                 db.InsertHabit(name, unit);
                 Console.WriteLine("Habit added successfully.");
+            }
+            catch (SqliteException e) when (e.SqliteErrorCode == 19)
+            {
+                Console.WriteLine("A habit with that name already exists.");
             }
             catch (Exception e)
             {
@@ -238,13 +253,33 @@ namespace CodeReviews_Console_HabitTracker
                 quantityInput = Console.ReadLine();
             }
 
+            DateTime parsedDate;
+            System.Console.WriteLine("Enter the date of occurrence (dd-MM-yyyy): ");
+            string? dateInString = Console.ReadLine();
+
+            while (!DateTime.TryParseExact(
+                dateInString,
+                "dd-MM-yyyy",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out parsedDate))
+            {
+                Console.WriteLine("Invalid date. Please use yyyy-MM-dd format, for example 2025-01-31.");
+                Console.Write("Enter the date of occurrence (dd-MM-yyyy): ");
+                dateInString = Console.ReadLine();
+            }
+
             Console.WriteLine("Enter notes, or press Enter to skip:");
             string? notes = Console.ReadLine();
 
             try
             {
-                db.InsertHabitEntry(habitSelected.ID, quantity, notes);
+                db.InsertHabitEntry(habitSelected.ID, parsedDate.ToString("dd-MM-yyyy"), quantity, notes);
                 Console.WriteLine("Habit entry added successfully.");
+            }
+            catch (SqliteException e)
+            {
+                Console.WriteLine($"Database error: {e.Message}");
             }
             catch (Exception e)
             {
@@ -266,9 +301,17 @@ namespace CodeReviews_Console_HabitTracker
             long id;
 
             if (itemName?.ToLower() == "habit entry")
-                DisplayHabitEntriesTable();
+            {
+                if (!DisplayHabitEntriesTable())
+                    return;
+
+            }
             if (itemName?.ToLower() == "habit")
-                DisplayHabitsTable();
+            {
+                if (!DisplayHabitsTable())
+                    return;
+
+            }
 
             System.Console.Write("Provide the id of the row you want to delete: ");
             selectedId = Console.ReadLine();
@@ -279,16 +322,41 @@ namespace CodeReviews_Console_HabitTracker
                 selectedId = Console.ReadLine();
             }
 
+            if (itemName?.ToLower() == "habit entry")
+            {
+                HabitEntry? selectedEntry = db.GetHabitEntryById(id);
+
+                if (selectedEntry == null)
+                {
+                    Console.WriteLine($"No habit entry found with ID={id}.");
+                    System.Console.WriteLine("Press any key to close...");
+                    Console.ReadLine();
+                    return;
+                }
+            }
+            if (itemName?.ToLower() == "habit")
+            {
+                Habit? selectedhabit = db.GetHabitById(id);
+
+                if (selectedhabit == null)
+                {
+                    Console.WriteLine($"No habit found with ID={id}.");
+                    System.Console.WriteLine("Press any key to close...");
+                    Console.ReadLine();
+                    return;
+                }
+            }
+
             System.Console.WriteLine($"Are you sure you want to delete the item with ID={id}? (y/n)");
             string? response = Console.ReadLine();
 
-            while (response == null || !Regex.IsMatch(response, "^(y|Y|n|N)"))
+            while (response == null || !Regex.IsMatch(response, "^[yYnN]$"))
             {
                 System.Console.WriteLine($"This is a yes/no question. What say you? (y/n)");
                 response = Console.ReadLine();
             }
 
-            if (response != null && Regex.IsMatch(response, "^(y|Y|n|N)"))
+            if (response != null && Regex.IsMatch(response, "^[yYnN]$"))
             {
                 if (response.ToLower().Trim() == "y")
                 {
@@ -348,7 +416,8 @@ namespace CodeReviews_Console_HabitTracker
             long id;
             if (itemName?.ToLower() == "habit")
             {
-                DisplayHabitsTable();
+                if (!DisplayHabitsTable())
+                    return;
                 System.Console.WriteLine("\nEnter the ID of the habit you want to edit: ");
                 enteredId = Console.ReadLine();
 
@@ -412,7 +481,8 @@ namespace CodeReviews_Console_HabitTracker
             }
             if (itemName?.ToLower() == "habit entry")
             {
-                DisplayHabitEntriesTable();
+                if (!DisplayHabitEntriesTable())
+                    return;
                 System.Console.WriteLine("\nEnter the ID of the habit entry you want to edit: ");
                 enteredId = Console.ReadLine();
 
@@ -425,7 +495,7 @@ namespace CodeReviews_Console_HabitTracker
 
                 if (selectedHabitEntry == null)
                 {
-                    Console.WriteLine($"No habit entry found with ID={selectedHabitEntry}.");
+                    Console.WriteLine($"No habit entry found with ID={id}.");
                     Console.WriteLine("Press any key to return to the main menu...");
                     Console.ReadLine();
                     return;
@@ -448,8 +518,28 @@ namespace CodeReviews_Console_HabitTracker
 
                 }
 
+                Console.WriteLine($"Current date: {selectedHabitEntry.Date}");
+                System.Console.WriteLine("Enter the new date of occurrence (dd-MM-yyyy): ");
+                string? dateInString = Console.ReadLine();
+                DateTime parsedDate;
+
+                if (string.IsNullOrWhiteSpace(dateInString))
+                    dateInString = selectedHabitEntry.Date;
+
+                while (!DateTime.TryParseExact(
+                    dateInString,
+                    "dd-MM-yyyy",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out parsedDate))
+                {
+                    Console.WriteLine("Invalid date. Please use dd-MM-yyyy format, for example 2025-01-31.");
+                    Console.Write("Enter the date of occurrence (dd-MM-yyyy): ");
+                    dateInString = Console.ReadLine();
+                }
+
                 Console.WriteLine($"Current notes: {selectedHabitEntry.Notes ?? "(none)"}");
-                Console.Write("Enter new notes, press Enter to keep current, or type CLEAR to remove notes: ");
+                Console.Write("Enter new notes, press Enter to keep current: ");
                 string? newNotes = Console.ReadLine();
 
                 if (string.IsNullOrWhiteSpace(newNotes))
@@ -457,12 +547,12 @@ namespace CodeReviews_Console_HabitTracker
 
                 try
                 {
-                    db.UpdateHabitEntry(id, newQuantity, newNotes);
-                    Console.WriteLine("Habit updated successfully.");
+                    db.UpdateHabitEntry(id, parsedDate.ToString("dd-MM-yyyy"), newQuantity, newNotes);
+                    Console.WriteLine("Habit entry updated successfully.");
                 }
-                catch (SqliteException e) when (e.SqliteErrorCode == 19)
+                catch (SqliteException e)
                 {
-                    Console.WriteLine("Update failed. Another habit already uses that name.");
+                    Console.WriteLine($"Database error while updating habit entry: {e.Message}");
                 }
                 catch (Exception e)
                 {
@@ -495,7 +585,11 @@ namespace CodeReviews_Console_HabitTracker
                 return;
             }
 
-            DisplayHabitEntriesTable(habitSelected.ID);
+            if (!DisplayHabitEntriesTable(habitSelected.ID))
+                return;
+
+            System.Console.WriteLine("Press any key to close...");
+            Console.ReadLine();
         }
     }
 }

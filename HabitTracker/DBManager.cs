@@ -241,7 +241,7 @@ internal class DBManager
         return habitEntriesList;
     }
 
-    public void InsertHabitEntry(long _habitEntryId, int _quantity, string? notes)
+    public void InsertHabitEntry(long _habitEntryId, string _date, int _quantity, string? notes)
     {
         using (var connection = new SqliteConnection(connectionString))
         {
@@ -256,7 +256,7 @@ internal class DBManager
                 ";
 
                 cmd.Parameters.AddWithValue("$habitId", _habitEntryId);
-                cmd.Parameters.AddWithValue("$date", DateTime.Now.ToString("dd-MM-yyyy"));
+                cmd.Parameters.AddWithValue("$date", _date);
                 cmd.Parameters.AddWithValue("$quantity", _quantity);
                 cmd.Parameters.AddWithValue("$notes", string.IsNullOrWhiteSpace(notes) ? DBNull.Value : notes);
 
@@ -315,7 +315,7 @@ internal class DBManager
         }
     }
 
-    public void UpdateHabitEntry(long _habitEntryId, int _quantity, string? _notes)
+    public void UpdateHabitEntry(long _habitEntryId, string _date, int _quantity, string? _notes)
     {
         using (var connection = new SqliteConnection(connectionString))
         {
@@ -325,12 +325,14 @@ internal class DBManager
             {
                 cmd.CommandText = @"
                     UPDATE HabitEntries
-                    SET Quantity = $quantity,
+                    SET Date = $date,
+                        Quantity = $quantity,
                         Notes = $notes
                     WHERE Id = $id;
                 ";
 
                 cmd.Parameters.AddWithValue("$id", _habitEntryId);
+                cmd.Parameters.AddWithValue("$date", _date);
                 cmd.Parameters.AddWithValue("$quantity", _quantity);
                 cmd.Parameters.AddWithValue("$notes", string.IsNullOrWhiteSpace(_notes) ? DBNull.Value : _notes);
 
