@@ -23,8 +23,7 @@ Developed using C#/.NET and SQLite.
   - If no database exists, or the correct table does not exist they will be created on program start.
 
 - A console based UI where users can navigate by key presses
-
-image here
+  - ![image](https://raw.githubusercontent.com/felikshetalia/CodeReviews.Console.HabitTracker/refs/heads/master/screenshots/mainmenu.png)
 
 - CRUD DB functions
   - From the main menu, users can Create, Read, Update, and Delete habits.
@@ -33,3 +32,29 @@ image here
   - Each habit entry stores a date, quantity, and optional notes.
   - Dates and quantities are validated before being saved to the database.
   - Duplicate habit names are not allowed.
+
+# What I've learned from this project
+
+- Using SQLite as the database for a .NET console application.
+
+- Connecting a C# console app to a local SQLite database file and create the database tables from code if they do not already exist.
+
+- Using ADO.NET with SQLite to execute `SELECT`, `INSERT`, `UPDATE`, and `DELETE` commands.
+
+- Validating console input before saving it to the database, including IDs, quantities, dates, habit names, and units.
+
+- Parsing user-entered dates with `DateTime.TryParseExact()` and store them in a consistent `dd-MM-yyyy` format.
+
+- Practicing DRY principle
+
+# Areas to Improve
+
+- Not hesitating to split the code into as much chunks as I can if it helps.
+
+- Making error handling more consistent across the application, especially for database errors and invalid user actions.
+
+- Improving the console UI by showing habit names alongside habit entries instead of only displaying habit IDs (JOIN tables).
+
+- Maybe applying the DRY principle to methods that run queries too.
+
+- Continue improving the overall project structure by spreading more logic across classes as the application grows.
