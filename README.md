@@ -47,6 +47,10 @@ Developed using C#/.NET and SQLite.
 
 - Practicing DRY principle
 
+- Separate projects added to the same solution are still in different assemblies, so this is where `public` class modifier comes in handy.
+
+- Writing parametrized unit tests with predefined test cases in .NET
+
 # Areas to Improve
 
 - Not hesitating to split the code into as much chunks as I can if it helps.
