@@ -1,6 +1,6 @@
 namespace CodeReviews_Console_HabitTracker;
 
-internal class HabitEntry
+public class HabitEntry
 {
     public long ID;
     public long HabitID;

@@ -36,6 +36,8 @@ namespace CodeReviews_Console_HabitTracker
 
                     case "1":
                         DisplayHabitsTable();
+                        System.Console.WriteLine("Press any key to close...");
+                        Console.ReadLine();
                         break;
 
                     case "2":
@@ -52,10 +54,14 @@ namespace CodeReviews_Console_HabitTracker
 
                     case "5":
                         DisplayHabitEntriesTable();
+                        System.Console.WriteLine("Press any key to close...");
+                        Console.ReadLine();
                         break;
 
                     case "6":
                         DisplayHabitEntriesByHabit();
+                        System.Console.WriteLine("Press any key to close...");
+                        Console.ReadLine();
                         break;
 
                     case "7":
@@ -107,8 +113,8 @@ namespace CodeReviews_Console_HabitTracker
             if (habitList.Count == 0)
             {
                 Console.WriteLine("\nNo habits found.");
-                System.Console.WriteLine("Press any key to close...");
-                Console.ReadLine();
+                // System.Console.WriteLine("Press any key to close...");
+                // Console.ReadLine();
                 return false;
             }
 
@@ -135,8 +141,8 @@ namespace CodeReviews_Console_HabitTracker
             }
 
             Console.WriteLine("------------------------------------------------------------");
-            System.Console.WriteLine("Press any key to close...");
-            Console.ReadLine();
+            // System.Console.WriteLine("Press any key to close...");
+            // Console.ReadLine();
             return true;
 
         }
@@ -147,8 +153,8 @@ namespace CodeReviews_Console_HabitTracker
             if (habitEntriesList.Count == 0)
             {
                 Console.WriteLine("\nNo habits found.");
-                System.Console.WriteLine("Press any key to close...");
-                Console.ReadLine();
+                // System.Console.WriteLine("Press any key to close...");
+                // Console.ReadLine();
                 return false;
             }
 
@@ -177,8 +183,8 @@ namespace CodeReviews_Console_HabitTracker
             }
 
             Console.WriteLine("--------------------------------------------------------------------------------");
-            System.Console.WriteLine("Press any key to close...");
-            Console.ReadLine();
+            // System.Console.WriteLine("Press any key to close...");
+            // Console.ReadLine();
             return true;
         }
         static void AddNewHabit()
@@ -237,6 +243,8 @@ namespace CodeReviews_Console_HabitTracker
             if (habitSelected == null)
             {
                 Console.WriteLine($"No habit found with the name '{habitName}'. Consider adding it first.");
+                System.Console.WriteLine("Press any key to close...");
+                Console.ReadLine();
                 return;
             }
 
@@ -417,7 +425,11 @@ namespace CodeReviews_Console_HabitTracker
             if (itemName?.ToLower() == "habit")
             {
                 if (!DisplayHabitsTable())
+                {
+                    System.Console.WriteLine("Press any key to close...");
+                    Console.ReadLine();
                     return;
+                }
                 System.Console.WriteLine("\nEnter the ID of the habit you want to edit: ");
                 enteredId = Console.ReadLine();
 
@@ -482,7 +494,11 @@ namespace CodeReviews_Console_HabitTracker
             if (itemName?.ToLower() == "habit entry")
             {
                 if (!DisplayHabitEntriesTable())
+                {
+                    System.Console.WriteLine("Press any key to close...");
+                    Console.ReadLine();
                     return;
+                }
                 System.Console.WriteLine("\nEnter the ID of the habit entry you want to edit: ");
                 enteredId = Console.ReadLine();
 

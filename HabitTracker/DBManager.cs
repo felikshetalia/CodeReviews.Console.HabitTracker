@@ -3,7 +3,7 @@ using Microsoft.Data.Sqlite;
 
 namespace CodeReviews_Console_HabitTracker;
 
-internal class DBManager
+public class DBManager
 {
     private const string _dbFilename = "habit-tracker.db";
     public string connectionString { get; } = new SqliteConnectionStringBuilder
