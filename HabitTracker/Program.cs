@@ -108,7 +108,17 @@ namespace CodeReviews_Console_HabitTracker
         }
         static bool DisplayHabitsTable()
         {
-            var habitList = db.GetHabits();
+            List<Habit> habitList;
+
+            try
+            {
+                habitList = db.GetHabits();
+            }
+            catch (SqliteException ex)
+            {
+                Console.WriteLine($"Unexpected SQLite error {ex.SqliteErrorCode}: {ex.Message}");
+                return false;
+            }
 
             if (habitList.Count == 0)
             {
@@ -148,7 +158,17 @@ namespace CodeReviews_Console_HabitTracker
         }
         static bool DisplayHabitEntriesTable(long? _habitId = null)
         {
-            var habitEntriesList = db.GetHabitEntries(_habitId);
+            List<HabitEntry> habitEntriesList;
+
+            try
+            {
+                habitEntriesList = db.GetHabitEntries(_habitId);
+            }
+            catch (SqliteException ex)
+            {
+                Console.WriteLine($"Unexpected SQLite error {ex.SqliteErrorCode}: {ex.Message}");
+                return false;
+            }
 
             if (habitEntriesList.Count == 0)
             {
@@ -238,7 +258,16 @@ namespace CodeReviews_Console_HabitTracker
                 habitName = Console.ReadLine();
             }
 
-            Habit? habitSelected = db.GetHabitByName(habitName);
+            Habit? habitSelected;
+            try
+            {
+                habitSelected = db.GetHabitByName(habitName);
+            }
+            catch (SqliteException ex)
+            {
+                Console.WriteLine($"Unexpected SQLite error {ex.SqliteErrorCode}: {ex.Message}");
+                return;
+            }
 
             if (habitSelected == null)
             {
@@ -332,7 +361,16 @@ namespace CodeReviews_Console_HabitTracker
 
             if (itemName?.ToLower() == "habit entry")
             {
-                HabitEntry? selectedEntry = db.GetHabitEntryById(id);
+                HabitEntry? selectedEntry;
+                try
+                {
+                    selectedEntry = db.GetHabitEntryById(id);
+                }
+                catch (SqliteException ex)
+                {
+                    Console.WriteLine($"Unexpected SQLite error {ex.SqliteErrorCode}: {ex.Message}");
+                    return;
+                }
 
                 if (selectedEntry == null)
                 {
@@ -344,7 +382,17 @@ namespace CodeReviews_Console_HabitTracker
             }
             if (itemName?.ToLower() == "habit")
             {
-                Habit? selectedhabit = db.GetHabitById(id);
+                Habit? selectedhabit;
+
+                try
+                {
+                    selectedhabit = db.GetHabitById(id);
+                }
+                catch (SqliteException ex)
+                {
+                    Console.WriteLine($"Unexpected SQLite error {ex.SqliteErrorCode}: {ex.Message}");
+                    return;
+                }
 
                 if (selectedhabit == null)
                 {
@@ -438,7 +486,17 @@ namespace CodeReviews_Console_HabitTracker
                     Console.WriteLine("Please enter a valid positive number.");
                     enteredId = Console.ReadLine();
                 }
-                Habit? selectedHabit = db.GetHabitById(id);
+
+                Habit? selectedHabit;
+                try
+                {
+                    selectedHabit = db.GetHabitById(id);
+                }
+                catch (SqliteException ex)
+                {
+                    Console.WriteLine($"Unexpected SQLite error {ex.SqliteErrorCode}: {ex.Message}");
+                    return;
+                }
 
                 if (selectedHabit == null)
                 {
@@ -507,7 +565,16 @@ namespace CodeReviews_Console_HabitTracker
                     Console.WriteLine("Please enter a valid positive number.");
                     enteredId = Console.ReadLine();
                 }
-                HabitEntry? selectedHabitEntry = db.GetHabitEntryById(id);
+                HabitEntry? selectedHabitEntry;
+                try
+                {
+                    selectedHabitEntry = db.GetHabitEntryById(id);
+                }
+                catch (SqliteException ex)
+                {
+                    Console.WriteLine($"Unexpected SQLite error {ex.SqliteErrorCode}: {ex.Message}");
+                    return;
+                }
 
                 if (selectedHabitEntry == null)
                 {
@@ -593,7 +660,16 @@ namespace CodeReviews_Console_HabitTracker
                 habitName = Console.ReadLine();
             }
 
-            Habit? habitSelected = db.GetHabitByName(habitName);
+            Habit? habitSelected;
+            try
+            {
+                habitSelected = db.GetHabitByName(habitName);
+            }
+            catch (SqliteException ex)
+            {
+                Console.WriteLine($"Unexpected SQLite error {ex.SqliteErrorCode}: {ex.Message}");
+                return;
+            }
 
             if (habitSelected == null)
             {
